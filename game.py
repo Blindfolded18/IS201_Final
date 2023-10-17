@@ -99,6 +99,8 @@ class Game:
         Proceeds the game. The player in current turn will be played only.
         It is advised that this method doesn't drive the game to the completion in one called.
         There's only one move at a time.
+        NOTE: do NOT call this method if the game is concluded. That is, do NOT call if the previous call
+        didn't return `None`
         :return: the outcome of the game after the move, either a win or a draw, or `None` if the game isn't concluded
         yet
         """
