@@ -180,6 +180,15 @@ class _Board:
 
         return iter(self._tiles)
 
+    def __contains__(self, tile: Side | None) -> bool:
+        """
+        Checks if a tile is in the board
+        :param tile: the tile
+        :return: `True` if so, otherwise `False`
+        """
+
+        return tile in self._tiles
+
     def is_full(self) -> bool:
         """
         checks whether the board is full. That is, there's no empty tile on the board
@@ -203,6 +212,6 @@ class _Board:
         ]
 
         return any(
-            all(self[i] == side for i in win_condition)
+            all(self[i] is side for i in win_condition)
             for win_condition in win_conditions
         )
