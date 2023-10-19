@@ -1,6 +1,6 @@
 from unittest import TestCase
 
-from game import Player, Side, Game, Outcome
+from game import Player, Side, Game, Outcome, BoardView
 import dataclasses
 
 
@@ -13,7 +13,7 @@ class TestGame(TestCase):
             """
             current: int
 
-            def decide_move(self, board_view: list[bool | None]) -> int:
+            def decide_move(self, board_view: BoardView, current_side: Side) -> int:
                 move = self.current
                 self.current += 1
                 return move

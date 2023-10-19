@@ -1,27 +1,8 @@
 # I don't want CLI implementation and Player's concrete implementations to be here
 # They aren't responsibilities of this module
-
+import copy
 from enum import Enum
 from abc import abstractmethod
-
-
-class Player:
-    """
-    Player of the game, which could be human or AI
-    """
-
-    @abstractmethod
-    def decide_move(self, board_view: list[bool | None]) -> int:
-        """
-        Decide the next move
-
-        :param board_view: the board "view" which is regardless of the current side of the player.
-        For each "tile view", `True` means that the actual tile is at the same side. If the player's side is "X" and
-        that tile view is `True`, then the tile in that position in the game is "X". `False` means the opposite:
-        the tile is at the different side. `None` means that there's currently not occupied by either sides
-        :return: the "decision" on the position where the next move will be placed
-        """
-        pass
 
 
 class Side(Enum):
@@ -38,6 +19,62 @@ class Side(Enum):
     """
     X side
     """
+
+
+class BoardView:
+    """
+    The immutable board view
+    """
+
+    def __init__(self, board: '_Board'):
+        """
+        Initialize a view from the actual board
+        :param board: the board
+        """
+        self._board = board
+
+    def __getitem__(self, index) -> Side | None:
+        """
+        Gets the tile at `index`
+        :param index: desired position
+        :return: tile
+        """
+
+        return self._board[index]
+
+    def __iter__(self):
+        """
+        Iterator over the entry of the board.
+        :return: iterator over the entry of the board
+        """
+
+        return iter(self._board)
+
+    def __contains__(self, tile: Side | None) -> bool:
+        """
+        Checks if a tile is in the board
+        :param tile: the tile
+        :return: `True` if so, otherwise `False`
+        """
+
+        return tile in self._board
+
+
+class Player:
+    """
+    Player of the game, which could be human or AI
+    """
+
+    @abstractmethod
+    def decide_move(self, board_view: BoardView, current_side: Side) -> int:
+        """
+        Decide the next move
+        :param board_view: the immutable view of the board to prevent direct modification on the board.
+        You can index, iterate on, and perform membership test and comprehensions like a normal list
+        :param current_side: the current side taking turn.
+        :return: the "decision" on the position where the next move will be placed
+        """
+        pass
 
 
 class Outcome(Enum):
@@ -107,15 +144,10 @@ class Game:
 
         # Helper function to prevent code duplication
         def make_turn(board: _Board, p: Player, side: Side) -> bool:
-            board_view = [
-                None if tile is None else tile is side
-                for tile in board
-            ]
-
-            move_at = p.decide_move(board_view)
+            move_at = p.decide_move(BoardView(board), side)
             board[move_at] = side
 
-            return board.has_won(side)
+            return has_won(board, side)
 
         match self._turn:
             case Side.X:
@@ -135,6 +167,28 @@ class Game:
 
         # Cannot determine who wins or whether the game is a draw. Return `None`
         return None
+
+
+def has_won(board, side: Side) -> bool:
+    """
+    check if the given side wins on this board.
+    This can be used for AI implementation
+    :param board: the board. It must be an array-like board with 9 `Side | None` elements (like `list[Side | None]`)
+    :param side: side to check for the win
+    :return: `True` if the given side has won, `False` otherwise
+    """
+
+    # All possible winning condition
+    win_conditions = [
+        [0, 1, 2], [3, 4, 5], [6, 7, 8],  # Rows
+        [0, 3, 6], [1, 4, 7], [2, 5, 8],  # Columns
+        [0, 4, 8], [2, 4, 6]  # Diagonals
+    ]
+
+    return any(
+        all(board[i] is side for i in win_condition)
+        for win_condition in win_conditions
+    )
 
 
 # Private. Other modules must NOT interact with this directly
@@ -174,7 +228,7 @@ class _Board:
 
     def __iter__(self):
         """
-        Iterator over the entry of the board. Required for list comprehension in :meth:`Game.next_turn`.
+        Iterator over the entry of the board.
         :return: iterator over the entry of the board
         """
 
@@ -196,22 +250,3 @@ class _Board:
         """
 
         return None not in self
-
-    def has_won(self, side: Side) -> bool:
-        """
-        if the given side wins on this board
-        :param side: side to check for the win
-        :return: `True` if the given side has won, `False` otherwise
-        """
-
-        # All possible winning condition
-        win_conditions = [
-            [0, 1, 2], [3, 4, 5], [6, 7, 8],  # Rows
-            [0, 3, 6], [1, 4, 7], [2, 5, 8],  # Columns
-            [0, 4, 8], [2, 4, 6]  # Diagonals
-        ]
-
-        return any(
-            all(self[i] is side for i in win_condition)
-            for win_condition in win_conditions
-        )
