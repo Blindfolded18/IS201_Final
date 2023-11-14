@@ -20,6 +20,13 @@ class Side(Enum):
     X side
     """
 
+    def swap_side(self):
+        """
+        Change to the opposite side
+        :return:  the opposite side
+        """
+        return Side.X if self is Side.O else Side.O
+
 
 class BoardView:
     """
