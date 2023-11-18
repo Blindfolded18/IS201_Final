@@ -55,25 +55,26 @@ class MinimaxAi(Player):
         return random.choice(best_move)
 
 
-def _minimax(board: list[Side | None], current_side: Side, is_maximizing: bool) -> int:
+def _max_score(board: list[Side | None], current_side: Side, is_maximizing: bool) -> int:
     """
-    Evaluates the board state to determine the best move for the current side.
+    Evaluates the board to determine the max score for the current side.
     It alternates between maximizing and minimizing strategy based on the current side.
 
-    :param board:
-    :param current_side:
-    :param is_maximizing:
-    :return:
+    :param board: the board. May be modified
+    :param current_side: the current side
+    :param is_maximizing: is the current side is maximizing or not?
+    :return: 1 if the best the maximizing side
     """
     # Base case: checking for win (1), loss (-1), or draw (0).
-    if not is_maximizing and has_won(board, current_side):
+    if is_maximizing and has_won(board, current_side):  # the maximizing side has achieved their goal
         return 1
-    elif is_maximizing and has_won(board, current_side.swap_side()):
+    if not is_maximizing and has_won(board, current_side.swap_side()):  # the minimizing side has achieved their goal
         return -1
-    elif None not in board:
+    if None not in board:  # full board
         return 0
 
     # Recursive case: evaluate scores of possible moves and return the best one.
+    is_maximizing = not is_maximizing  # now we consider the opponent if the current state is not deterministic yet
     scores = (score for move, score in _move_scores(board, current_side, is_maximizing))
     return max(scores) if is_maximizing else min(scores)
 
@@ -81,25 +82,25 @@ def _minimax(board: list[Side | None], current_side: Side, is_maximizing: bool) 
 def _move_scores(board: list[Side | None], current_side: Side, is_maximizing: bool):
     """
     Generator over the possible moves and outcomes they yield
-    :param board: the game board. DO NOT do something with the board while the generator isn't finished
-    as the board is in the unspecified state because it is modified in the generator
+
+    :param board: the game board. DO NOT do something with the board (except the _max_score function) while
+                  the generator isn't finished, as the board is in the unspecified state
+                  because it is modified in the generator
     :param current_side: the side to consider
-    :param is_maximizing: they are maximizing their win or minimizing their loss?
+    :param is_maximizing: is the current side is maximizing or not?
     :return:
     """
 
     for i in (i for i in range(len(board)) if board[i] is None):
         # Temporarily make a move on the board.
         board[i] = current_side if is_maximizing else current_side.swap_side()
-        # Why `not is_maximizing`? We are considering the current side, no?
-        # The reason is we assume that the opponent is trying hard to again
-        minimax = _minimax(board, current_side, not is_maximizing)
+        max_score = _max_score(board, current_side, is_maximizing)
         # Undo it
         board[i] = None
 
         # Move it to the end since leaving the board[i] not empty while being held across `yield`
         # would be a logic error if the generator is ended early
-        yield i, minimax
+        yield i, max_score
 
 
 def _find_win_move(board, side: Side) -> int | None:
