@@ -38,7 +38,7 @@ class BoardView:
         Initialize a view from the actual board
         :param board: the board
         """
-        self._board = board
+        self._board = board.tiles
 
     def __getitem__(self, index) -> Side | None:
         """
@@ -175,6 +175,10 @@ class Game:
         # Cannot determine who wins or whether the game is a draw. Return `None`
         return None
 
+    @property
+    def board(self) -> BoardView:
+        return BoardView(self._board)
+
 
 def has_won(board, side: Side) -> bool:
     """
@@ -210,7 +214,7 @@ class _Board:
         Initializes the empty board
         """
 
-        self._tiles: list[Side | None] = [None] * 9
+        self.tiles: list[Side | None] = [None] * 9
         """
         For each tile, it's either in one of the side, or `None` if empty
         """
@@ -222,7 +226,7 @@ class _Board:
         :return: tile
         """
 
-        return self._tiles[index]
+        return self.tiles[index]
 
     def __setitem__(self, index, value: Side | None):
         """
@@ -231,7 +235,7 @@ class _Board:
         :param value: new tile
         """
 
-        self._tiles[index] = value
+        self.tiles[index] = value
 
     def __iter__(self):
         """
@@ -239,7 +243,7 @@ class _Board:
         :return: iterator over the entry of the board
         """
 
-        return iter(self._tiles)
+        return iter(self.tiles)
 
     def __contains__(self, tile: Side | None) -> bool:
         """
@@ -248,7 +252,7 @@ class _Board:
         :return: `True` if so, otherwise `False`
         """
 
-        return tile in self._tiles
+        return tile in self.tiles
 
     def is_full(self) -> bool:
         """

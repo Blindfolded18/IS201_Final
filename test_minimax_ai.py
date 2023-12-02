@@ -33,6 +33,6 @@ class TestMinimaxAi(TestCase):
 def _game_with_custom_board(p_x: Player, p_o: Player, start_side: Side, tiles: list[Side | None]) -> Game:
     the_game = Game(p_x, p_o, start_side)
     board = _Board()
-    board._tiles = tiles
+    board.tiles = tiles
     the_game._board = board
     return the_game

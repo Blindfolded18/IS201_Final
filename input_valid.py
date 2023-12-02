@@ -19,5 +19,5 @@ def input_till_correct(prompt: str, repeat_prompt: str, input_processor: Callabl
     while True:
         try:
             return input_processor(inp)
-        except ValueError:
-            inp = input(repeat_prompt)
+        except ValueError as e:
+            inp = input(f"{e}. {repeat_prompt}")
