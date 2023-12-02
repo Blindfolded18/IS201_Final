@@ -20,12 +20,17 @@ def display_board(board) -> None:
     :param board: the board
     """
 
-    print('-------------')
-    for i in range(9):
-        print(f'| {i + 1 if board[i] is None else board[i].value} ', end='')
-        # we reach the end of the row
-        if i % 3 >= 2:
-            print('|\n-------------')
+    print('    Board          Indices')
+    print('-------------   -------------')
+    for i in range(3):
+        for pos in range(i * 3, i * 3 + 3):
+            print(f"| {' ' if board[pos] is None else board[pos].value} ", end='')
+
+        print("|   ", end='')
+        for pos in range(i * 3 + 1, i * 3 + 4):
+            print(f"| {pos} ", end='')
+
+        print('|\n-------------   -------------')
 
 
 def _prompt_move(board_view, current_side: Side) -> int:
