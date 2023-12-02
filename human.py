@@ -33,8 +33,8 @@ def _prompt_move(board_view, current_side: Side) -> int:
         move: int
         try:
             move = int(inp)
-        except ValueError as e:
-            raise e
+        except ValueError:
+            raise ValueError("Expected a number, got a string")
 
         if 1 <= move <= 9 and board_view[move - 1] is None:
             return move - 1

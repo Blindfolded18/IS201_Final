@@ -20,7 +20,7 @@ def main():
     match outcome, player_side:
         case (Outcome.X_WIN, Side.X) | (Outcome.O_WIN, Side.O):
             print("You win!")
-        case Outcome.DRAW:
+        case Outcome.DRAW, _:
             print("The game ends with a draw!")
         case _:
             print("You lose. Good luck next time!")
@@ -70,9 +70,9 @@ def prompt_difficulty() -> float:
             case "2":
                 return 0.2
             case "3":
-                return 0.5
+                return 0.4
             case "4":
-                return 0.7
+                return 0.6
             case "5":
                 return 1.0
 
