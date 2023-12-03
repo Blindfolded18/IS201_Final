@@ -79,7 +79,7 @@ class Player:
         :param board_view: the immutable view of the board to prevent direct modification on the board.
         You can index, iterate on, and perform membership test and comprehensions like a normal list
         :param current_side: the current side taking turn.
-        :return: the "decision" on the position where the next move will be placed
+        :return: the "decision" on the position (0-8) where the next move will be placed
         """
         pass
 

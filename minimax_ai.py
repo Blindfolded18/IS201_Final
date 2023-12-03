@@ -4,7 +4,7 @@ import random
 from game import Player, Side, BoardView, has_won
 
 
-@dataclasses.dataclass
+@dataclasses.dataclass(frozen=True)
 class MinimaxAi(Player):
     """
     An AI of the game

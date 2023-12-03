@@ -1,31 +1,45 @@
 # Coding convention:
 # - in the file or module except `main.py`, prefix everything (classes, fields, etc.)
 # that you don't want others to see with `_` (underscore)
+from typing import TextIO
+
+# 1. Selection of the first player. (e.g. Would you like to play first?)
+# 2. Assignment of "O" or "X" for a user. (e.g. Please choose 'O' or 'X' for your turn.)
+# 3. Computer selects a position based on either random position.
+# 4. If computer can select a position based on an algorithm (e.g. MiniMax algorithm or rule-based) approach, you will
+# earn 20 extra points.
+# 5. At each run, the program should display the board (3x3) as shown below. Placement is made based on the pre-assigned
+# positional number.
+# 6. Your program prints appropriate message if there is a winner and then exits.
+# 7. Your program saves all the moves between players in a file called tictactoe.txt (X:5 O:2 X:1 O:9 etc...)
+# 8. Your program should handle incorrect inputs (e.g. input validation) and continue to play without an error.
+
 from human import display_board
 from input_valid import input_till_correct
 from game import Side, Game, Outcome
 
 
 def main():
-    the_game, player_side = get_game()
-    print()
-
-    while (outcome := the_game.next_turn()) is None:
+    with open(file="tictactoe.txt", mode="w") as file:
+        the_game, player_side = get_game(file)
         print()
 
-    print()
-    display_board(the_game.board)
-    print()
+        while (outcome := the_game.next_turn()) is None:
+            print()
 
-    match outcome, player_side:
-        case (Outcome.X_WIN, Side.X) | (Outcome.O_WIN, Side.O):
-            print("You win!")
-        case Outcome.DRAW, _:
-            print("The game ends with a draw!")
-        case _:
-            print("You lose. Good luck next time!")
+        print()
+        display_board(the_game.board)
+        print()
 
-    print("Thanks for playing our game!")
+        match outcome, player_side:
+            case (Outcome.X_WIN, Side.X) | (Outcome.O_WIN, Side.O):
+                print("You win!")
+            case Outcome.DRAW, _:
+                print("The game ends with a draw!")
+            case _:
+                print("You lose. Good luck next time!")
+
+        print("Thanks for playing our game!")
 
 
 def prompt_player_side() -> Side:
@@ -93,14 +107,16 @@ def prompt_difficulty() -> float:
     )
 
 
-def get_game() -> tuple[Game, Side]:
-    import human, minimax_ai
+def get_game(file: TextIO) -> tuple[Game, Side]:
+    from human import HumanPlayer
+    from minimax_ai import MinimaxAi
+    from file_log import FilePlayerLogger
 
-    human_player = human.HumanPlayer()
+    human_player = FilePlayerLogger(player=HumanPlayer(), file=file)
 
     think_chance = prompt_difficulty()
     print()
-    ai_player = minimax_ai.MinimaxAi(think_chance)
+    ai_player = FilePlayerLogger(player=MinimaxAi(think_chance), file=file)
 
     player_side = prompt_player_side()
     print()
