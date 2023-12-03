@@ -1,7 +1,6 @@
 # Coding convention:
 # - in the file or module except `main.py`, prefix everything (classes, fields, etc.)
 # that you don't want others to see with `_` (underscore)
-from typing import TextIO
 
 # 1. Selection of the first player. (e.g. Would you like to play first?)
 # 2. Assignment of "O" or "X" for a user. (e.g. Please choose 'O' or 'X' for your turn.)
@@ -17,6 +16,7 @@ from typing import TextIO
 from human import display_board
 from input_valid import input_till_correct
 from game import Side, Game, Outcome
+from typing import TextIO
 
 
 def main():
@@ -76,19 +76,19 @@ def prompt_go_first() -> bool:
     )
 
 
-def prompt_difficulty() -> float:
-    def str_to_difficulty(inp: str) -> float:
+def prompt_difficulty() -> tuple[float, float]:
+    def str_to_difficulty(inp: str) -> tuple[float, float]:
         match inp:
             case "1":
-                return 0.0
+                return 0.0, 0.0
             case "2":
-                return 0.2
+                return 0.2, 0.2
             case "3":
-                return 0.4
+                return 0.4, 0.3
             case "4":
-                return 0.6
+                return 0.6, 0.5
             case "5":
-                return 1.0
+                return 1.0, 1.0
 
         raise ValueError("Invalid difficulty")
 

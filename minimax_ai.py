@@ -10,12 +10,13 @@ class MinimaxAi(Player):
     An AI of the game
     """
 
-    think_chance: float = 1.0
+    think_chance: tuple[float, float] = (1.0, 1.0)
     """
     The chance that it gives up to think and decide to move randomly instead.
     Note that it will still block obvious about-to-win and decide a move leading to a win.
     
-    You can change it freely 
+    The first number is the chance the AI "think" the move deeply by looking at the table and consider all the move.
+    The second number is the chance the AI will "think" about the obvious move, if they don't wanna think deeply
     """
 
     def decide_move(self, board_view: BoardView, current_side: Side) -> int:
@@ -24,21 +25,27 @@ class MinimaxAi(Player):
         if all(tile is None for tile in board_view):
             return random.randrange(0, 9)
 
-        # it applies for both "smart" case and "stupid" case
-        match _find_win_move(board_view, current_side):
-            case None: pass
-            case at: return at
+        # the AI don't wanna "think" deeply
+        if random.random() >= self.think_chance[0]:
+            # if so, if the AI wanna "think" about obvious moves
+            if random.random() < self.think_chance[1]:
+                match _find_win_move(board_view, current_side):
+                    case None:
+                        pass
+                    case at:
+                        return at
 
-        # stupid moment
-        if random.random() >= self.think_chance:
-            # but still don't be so stupid! You have to check for the possible block
-            match _find_win_move(board_view, current_side.swap_side()):
-                case None:
-                    avail_moves = [i for i, tile in enumerate(board_view) if tile is None]
-                    return random.choice(avail_moves)
-                case at: return at
+                match _find_win_move(board_view, current_side.swap_side()):
+                    case None:
+                        pass
+                    case at:
+                        return at
 
-        # if the AI decides to be a try hard, let it "minimax" you
+            # if they don't wanna "think" about obvious moves, or there are no obvious move
+            avail_moves = [i for i, tile in enumerate(board_view) if tile is None]
+            return random.choice(avail_moves)
+
+        # if the AI decides to "think" deeply, let it "minimax" you
         board = list(board_view)
 
         move_scores = _move_scores(board, current_side, True)
